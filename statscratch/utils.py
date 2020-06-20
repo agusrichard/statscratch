@@ -1,3 +1,5 @@
+import functools
+
 def factorial(x, recursive=False):
     """
     Calculate factorial of x (x!) iteratively or recursively.
@@ -9,10 +11,12 @@ def factorial(x, recursive=False):
     recursive : bool, default False
         If True, the calculation using recursion, else using iteration
     """
-    if x < 1:
+    if x < 0:
         raise ValueError('x can not negative')
     elif type(x) == float:
         raise TypeError('x must be an integer')
+    elif x == 0:
+        return 1
     else:
         if recursive:
             if x == 1:
@@ -26,7 +30,7 @@ def factorial(x, recursive=False):
             return mult
 
 
-def combination(n, x, recursive=False):
+def combination(n, x, **factorial_kwargs):
     """
     Calculate C(n, x)
 
@@ -36,10 +40,37 @@ def combination(n, x, recursive=False):
         Total number of items
     x : int
         Total number of items chosen
-    recursive : bool, default False
+    **factorial_kwargs : bool, default False
         True, use recursion. False, use iteration
     """
     if type(n) != int and type(x) != int:
         raise TypeError('n and x must be integers')
+    elif x > n:
+        raise ValueError('x can not larger than n')
     else:
-        return int(factorial(n, recursive=recursive) / (factorial(n-x, recursive=recursive) * factorial(x, recursive=recursive)))
+        return int(factorial(n, **factorial_kwargs) / (factorial(n-x, **factorial_kwargs) * factorial(x, **factorial_kwargs)))
+
+
+def multi_combination(n, *xs, **factorial_kwargs):
+    """
+    Calculate C(n, (x1, x2, x3, ..., xk))
+
+    Parameters
+    ----------
+    n : int
+        The total number of trials
+    *xs : list of ints
+        The number of successes for each kind. 
+    **factorial_kwargs
+        keyword arguments for factorial
+
+    """
+    if type(n) != int:
+        raise TypeError('n must be an integer')
+    else:
+        xs = [1] + list(xs)
+        print(xs)
+        denominator = functools.reduce(lambda prev, curr: prev * factorial(curr, **factorial_kwargs), xs)
+        print(denominator)
+        print(factorial(n))
+        return int(factorial(n, **factorial_kwargs) / denominator)
